@@ -90,6 +90,59 @@ User: "jlauer12@gmail.com"
 ]
 ```
 
+Here is some sample Javascript code for doing an Ajax call to get all the user's datakeys.
+
+```javascript
+getUserDataKeysFromChiliPepprStorage: function() {
+
+  console.log("Doing getUserDataKeysFromChiliPepprStorage");
+
+  // this queries chilipeppr's storage facility to see what
+  // keys are available for the user
+  $('#' + this.id + ' .alert-warning').addClass('hidden');
+
+  var that = this;
+  $.ajax({
+      url: "http://www.chilipeppr.com/datagetallkeys",
+      xhrFields: {
+          withCredentials: true
+      }
+  })
+  .done(function(data) {
+
+      // see if error
+      if (data.Error) {
+          // we got json, but it's error
+          $('#' + that.id + ' .alert-warning')
+              .html("<p>We can't retrieve your data from ChiliPeppr because you are not logged in. Please login to ChiliPeppr to see your list of available data keys.</p><p>Error: " + data.Msg + "</p>")
+              .removeClass('hidden');
+          return;
+      }
+
+      // loop thru keys and get org-jscut ones
+      var keys = [];
+      var keylist = "<ol>";
+      data.forEach(function(item) {
+          console.log("item:", item);
+          if (item.Name) { // && item.Name.match(/workspace/)) {
+              // we have a jscut file
+              keys.push({
+                  name: item.Name,
+                  created: item.CreateDate,
+                  size: item.ValueSize
+              });
+              keylist += "<li>" + item.Name + "</li>";
+          }
+      });
+      keylist += "</ol>";
+
+      $('#' + that.id + " .keylist").html(keylist);
+      console.log("added keylist:", keylist);
+
+  });
+},
+```
+
 # chilipeppr.com/datagetall
 
 If you need to see all the keys and data stored for a particular user, simply call `http://chilipeppr.com/datagetall`. Keep in mind this could return a massive amount of data so it is recommend you not use this call, but rather individually retrieve each key/val by making calls direct to `/dataget?key=mykey`.
