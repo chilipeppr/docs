@@ -35,6 +35,44 @@ LogoutUrl: "http://chilipeppr.com/_ah/logout?continue=https://www.google.com/acc
 ```
 To logout simply navigate to the LogoutUrl in your browser and all credentials will be removed.
 
+Here is some sample Javascript for checking if the user is logged in or not.
+
+```javascript
+currentUser: null,
+checkLogin: function() {
+  var that = this;
+  var jqxhr = $.ajax({
+      url: "http://www.chilipeppr.com/datalogin?callback=?",
+      dataType: 'jsonp',
+      jsonpCallback: 'headerpanel_dataloginCallback',
+      cache: true,
+    }).done(function(data) {
+      console.log(data);
+      if (data.CurrentUser != undefined && data.CurrentUser != null) {
+        console.log("user logged in ", data.CurrentUser);
+        that.currentUser = data.CurrentUser;
+        $('#com-chilipeppr-hdr-login').text(data.CurrentUser.Email);
+        $('#com-chilipeppr-hdr-dd-login').addClass("hidden");
+        $('#com-chilipeppr-hdr-dd-logout').prop('href', data.LogoutUrl);
+        // if they click their login id log them out
+        $('#com-chilipeppr-hdr-login').prop('href', data.LogoutUrl);
+      } else {
+        console.log("user NOT logged in");
+        $('#com-chilipeppr-hdr-login').text("Login");
+        $('#com-chilipeppr-hdr-dd-login').removeClass("hidden");
+        $('#com-chilipeppr-hdr-dd-logout').addClass("hidden");
+        $('#com-chilipeppr-hdr-dd-login').prop('href', data.LoginUrl);
+        $('#com-chilipeppr-hdr-dd-login').prop('target', "new");
+        $('#com-chilipeppr-hdr-login').prop('href', data.LoginUrl);
+        $('#com-chilipeppr-hdr-login').prop('target', "new");
+      }
+    })
+    .fail(function() {
+      console.warn("Failed to make the ajax call to check ChiliPeppr login status");
+    })
+},
+```
+
 # chilipeppr.com/dataput
 
 To store any key/value pair you can call `http://chilipeppr.com/dataput?key=mykey&val=myval`
