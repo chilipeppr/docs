@@ -1,0 +1,3 @@
+[submodule "widget-spjs"]
+	path = widget-spjs
+	url = https://github.com/chilipeppr/widget-spjs
