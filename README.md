@@ -128,7 +128,7 @@ User: "jlauer12@gmail.com"
 ]
 ```
 
-Here is some sample Javascript code for doing an Ajax call to get all the user's datakeys.
+Here is some sample Javascript code for doing an Ajax call to get all the user's datakeys. Using JSONP is recommended as it works best across domain paths and ChiliPeppr allows for a callback=? parameter in all dataput/dataget calls.
 
 ```javascript
 getUserDataKeysFromChiliPepprStorage: function() {
@@ -140,11 +140,11 @@ getUserDataKeysFromChiliPepprStorage: function() {
   $('#' + this.id + ' .alert-warning').addClass('hidden');
 
   var that = this;
-  $.ajax({
-      url: "http://www.chilipeppr.com/datagetallkeys",
-      xhrFields: {
-          withCredentials: true
-      }
+  var jqxhr = $.ajax({
+      dataType: 'jsonp',
+      cache: false,
+      url: "http://www.chilipeppr.com/datagetallkeys?callback=?",
+      //jsonpCallback: 'yourworkspacesCallback',
   })
   .done(function(data) {
 
