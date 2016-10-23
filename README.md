@@ -91,6 +91,38 @@ CreateDate: "2016-01-30T23:06:00.647278Z",
 User: "jlauer12@gmail.com"
 }
 ```
+Here is some sample Javascript code to to a dataput command, i.e. to store data in the ChiliPeppr cloud storage for a particular logged in user. Keep in mind because this uses JSONP that you can make these calls from anywhere because the cookie is passed with the JSONP under the www.chilipeppr.com domain.
+
+```
+// now, let's also save this to ChiliPeppr cloud storage
+var that = this;
+var cpkey = "com-chilipeppr-serialport-script-" + Date.now() + "-" + evt.data.port.DisplayPort;
+var cpval = {
+    portid: portid,
+    port: evt.data.port,
+    url: url,
+    script: val,
+    saveDate: Date.now()
+}
+var cpvalstr = encodeURIComponent(JSON.stringify(cpval));
+var cpvalstr = JSON.stringify(cpval);
+// since JSONP only supports GET you need to store all data using a GET and thus make sure you encode any payload data
+// that has an & in it correctly
+var amp = encodeURIComponent("&");
+cpvalstr = cpvalstr.replace(/&/, amp);
+console.log("about to save to chilipeppr cloud. cpkey:", cpkey, "cpval:", cpval, "cpvalstr:", cpvalstr);
+var url = "http://www.chilipeppr.com/dataput?key=" + cpkey + "&val=" + cpvalstr + "&callback=?";
+// url = encodeURI(url);
+console.log("len of url:", url.length, "url:", url);
+var jqxhr = $.ajax({
+  url: url,
+  dataType: 'jsonp',
+//   jsonpCallback: 'serialport_dataputCallback',
+  cache: false,
+}).done(function(data) {
+  console.log(data);
+});
+```
 
 # chilipeppr.com/dataget
 
@@ -103,6 +135,45 @@ Value: "myval",
 CreateDate: "2016-01-30T23:06:00.647278Z",
 User: "jlauer12@gmail.com"
 }
+```
+Here is a sample call using Javascript to dataget.
+
+```
+// now fire off sub-lookup for this item to load all data
+var jqxhr = $.ajax({
+    dataType: 'jsonp',
+    cache: false,
+    url: "http://www.chilipeppr.com/dataget?key=" + item.Name + "&callback=?",
+})
+.done(function(data) {
+    console.log("got data back from dataget call. data:", data);
+    if ("Value" in data) {
+        var meta = JSON.parse(data.Value);
+        console.log("meta:", meta);
+        var table = "<table class=\"table table-striped table-condensed\" style=\"font-size:11px;margin-bottom: 0;\"><tr>";
+        if ("port" in meta) {
+            if ("img" in meta.port) table += "<td rowspan=\"2\"><img style=\"width:50px;xpadding-right:10px;\" src=\"" + meta.port.img + "\" /></td>";
+            if ("DisplayName" in meta.port) table += "<td>" + meta.port.DisplayName + "</td>";
+            // if ("DisplayPort" in meta.port) table += "<td>" + meta.port.DisplayPort + "</td>";
+            if ("url" in meta) table += "<td>" + meta.url + "</td>";
+        }
+        table += "</tr>";
+        if ("script" in meta) {
+            var scr = meta.script.substring(0, 100);
+            if (meta.script.length > 100) scr += "...";
+            table += "<tr><td colspan=\"3\" xstyle=\"font-family:monospace\"><pre class=\"script-code\">" + 
+            scr + "</pre></td></tr>";
+        }
+        table += "</table>";
+        var tableEl = $(table);
+        $('.' + data.Name + " a").append(tableEl);
+
+        // make click event
+        var payload = data;
+        payload.meta = meta;
+        $('.' + data.Name + " a").click(payload, that.onCloudScriptFileClicked.bind(that));
+    }
+});
 ```
 
 # chilipeppr.com/datagetallkeys
