@@ -93,7 +93,7 @@ User: "jlauer12@gmail.com"
 ```
 Here is some sample Javascript code to to a dataput command, i.e. to store data in the ChiliPeppr cloud storage for a particular logged in user. Keep in mind because this uses JSONP that you can make these calls from anywhere because the cookie is passed with the JSONP under the www.chilipeppr.com domain.
 
-```
+```javascript
 // now, let's also save this to ChiliPeppr cloud storage
 var that = this;
 var cpkey = "com-chilipeppr-serialport-script-" + Date.now() + "-" + evt.data.port.DisplayPort;
@@ -138,7 +138,7 @@ User: "jlauer12@gmail.com"
 ```
 Here is a sample call using Javascript to dataget.
 
-```
+```javascript
 // now fire off sub-lookup for this item to load all data
 var jqxhr = $.ajax({
     dataType: 'jsonp',
